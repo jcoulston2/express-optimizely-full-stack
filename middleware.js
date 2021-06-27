@@ -1,5 +1,7 @@
 const { OPT_USER_ID_REF } = require("./constants");
-const { getVariationTemplate } = require("./utils");
+const { getVariationTemplate, getActiveExperiments } = require("./utils");
+const { experimentTemplateMapping } = require("./experiment-template-config");
+const path = require("path");
 
 module.exports.optimizelyBucketMiddleware = () => (req, res, next) => {
 	const optUserId = req.cookies[OPT_USER_ID_REF];
@@ -19,13 +21,23 @@ module.exports.optimizelyTemplateMiddleware = (optimizelyClient) => (req, res, n
 			: req.optCookieKey;
 		const user = optimizelyClient.createUserContext(optUserId);
 
-		const decision = user && user.decide("next_poc");
-		const variantKey = (decision && decision.variationKey) || null;
+		// Just one for now (POC)
+		const experiment = getActiveExperiments(req.path);
 
-		const variantTemplate = getVariationTemplate("next_poc", variantKey);
+		if (experiment) {
+			const decision = user && user.decide(experiment.name);
+			const variantKey = (decision && decision.variationKey) || null;
+			const variantPath = experiment[variantKey];
+			const variantTemplate = path.join(__dirname, `./templates/${variantPath}.html`);
 
-		res.sendFile(variantTemplate);
+			if (variantTemplate) {
+				res.sendFile(variantTemplate);
+			} else {
+				next();
+			}
+		} else {
+			// No active experiment for the given path name found
+			next();
+		}
 	});
-
-	// next();
 };
