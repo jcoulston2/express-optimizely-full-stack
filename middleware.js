@@ -2,6 +2,7 @@ const { OPT_USER_ID_REF } = require("./constants");
 const { getVariationTemplate, getActiveExperiments } = require("./utils");
 const { experimentTemplateMapping } = require("./experiment-template-config");
 const path = require("path");
+const uuid = require("uuid");
 
 module.exports.optimizelyBucketMiddleware = () => (req, res, next) => {
 	const optUserId = req.cookies[OPT_USER_ID_REF];

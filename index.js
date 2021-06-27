@@ -3,13 +3,13 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const optimizelyExpressSdk = require("@optimizely/optimizely-sdk");
 const cookieParser = require("cookie-parser");
-const uuid = require("uuid");
 const { optimizelyBucketMiddleware, optimizelyTemplateMiddleware } = require("./middleware");
-const { getVariationTemplate } = require("./utils");
 const { BASE_PATH, OPT_USER_ID_REF } = require("./constants");
 
+require("dotenv").config();
+
 const optimizelyClient = optimizelyExpressSdk.createInstance({
-	sdkKey: "9us7cqK2W3ADpkLiE1WcwU",
+	sdkKey: process.env.OPT_SDK_ID,
 	datafileOptions: {
 		autoUpdate: true,
 		updateInterval: 600000 // 10 minutes
